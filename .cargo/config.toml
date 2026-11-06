@@ -1,0 +1,3 @@
+# Keep dependency resolution compatible with rust-version (keeps 1.85 builds working).
+[resolver]
+incompatible-rust-versions = "fallback"

@@ -1,0 +1,22 @@
+name: Feature or format change
+description: Propose a feature or a change to the package format.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do, and why is it hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+    validations:
+      required: true
+  - type: textarea
+    id: compat
+    attributes:
+      label: Compatibility impact
+      description: Does this change the package format, signatures or error codes? How do existing packages and devices behave?

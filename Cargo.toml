@@ -1,0 +1,36 @@
+[package]
+name = "homing-format"
+version = "0.1.0-dev"
+description = "Reference parser, verifier and writer for homing app packages"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+repository = "https://github.com/trevortomlin/homing-format"
+authors = ["Trevor Tomlin and homing contributors"]
+readme = "README.md"
+homepage = "https://github.com/trevortomlin/homing-format"
+include = ["/src", "/tests", "/README.md", "/CHANGELOG.md", "/LICENSE"]
+keywords = ["ota", "flutter", "embedded", "package", "ed25519"]
+categories = ["embedded", "encoding", "cryptography"]
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "warn"
+
+[dependencies]
+base64 = "0.22"
+ed25519-dalek = "2"
+getrandom = "0.3"
+semver = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+tar = { version = "0.4", default-features = false }
+thiserror = "2"
+zstd = "0.13"
+
+[dev-dependencies]
+tempfile = "3"

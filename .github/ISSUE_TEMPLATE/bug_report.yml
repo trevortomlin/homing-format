@@ -1,0 +1,32 @@
+name: Bug report
+description: Something does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Security issues** (for example a package that is accepted but should be rejected) must
+        not be reported here. See [SECURITY.md](https://github.com/trevortomlin/homing-format/blob/main/SECURITY.md).
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: A minimal code snippet or package that shows the problem.
+      render: rust
+  - type: input
+    id: version
+    attributes:
+      label: homing-format version or commit
+    validations:
+      required: true
+  - type: input
+    id: rust
+    attributes:
+      label: Rust version (`rustc --version`) and OS
