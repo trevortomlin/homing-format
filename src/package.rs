@@ -231,7 +231,8 @@ fn run<R: Read>(r: R, opts: VerifyOptions<'_>, dest: Option<&Path>) -> Result<Ve
                 ),
             ));
         }
-        let p = path::validate(&raw, false)?;
+        // Files outside bundle/, config/ and sbom/ are illegal paths, whether or not listed.
+        let p = path::validate_payload_file(&raw)?;
         if !seen.insert(p.clone()) {
             return Err(Error::new(ErrorCode::Path, format!("duplicate entry {p}")));
         }
