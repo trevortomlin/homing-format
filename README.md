@@ -190,6 +190,13 @@ An HTTP update source publishes `index.json` and a detached `index.json.sig` bes
 | `E_ROLLBACK` | `version_code` below the device's anti-rollback floor |
 | `E_SPACE`, `E_HEALTH`, `E_BUSY`, `E_PERM`, `E_IO` | Used by installers (storage, health checks, concurrency, permissions, I/O) |
 
+### JSON Schemas
+
+[`schemas/`](schemas/) has JSON Schemas (draft 2020-12) for `manifest.json`, signature
+documents (`*.sig`), `engine.json` and `index.json`. Each schema's `$comment` lists the few
+cross-field rules a schema cannot express. Tests check that every schema gives the same verdict
+as this crate's parser on valid and deliberately broken documents.
+
 ### Test vectors
 
 [`test-vectors/`](test-vectors/) has language-neutral vectors for anyone implementing or testing a
@@ -220,7 +227,7 @@ from the generator's output.
 - [x] Signed update index with device-aware build selection
 - [ ] Multi-app bundles (`.homingb`) and install reports
 - [x] Language-neutral test vectors (every verifier error code)
-- [ ] JSON Schemas
+- [x] JSON Schemas, checked against the parser in CI
 - [ ] Fuzzing of the archive and manifest parsers
 - [ ] Publish to crates.io
 

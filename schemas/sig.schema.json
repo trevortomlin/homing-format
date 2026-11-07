@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/trevortomlin/homing-format/main/schemas/sig.schema.json",
+  "title": "homing detached signature",
+  "description": "Detached Ed25519 signature document: manifest.sig and index.json.sig. Signs \"homing/<type>/v1\" || 0x00 || exact document bytes, with type manifest, bundle or index.",
+  "$comment": "The whole document is at most 4096 bytes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "alg",
+    "key_id",
+    "sig"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "alg": {
+      "const": "ed25519"
+    },
+    "key_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$",
+      "description": "First 16 hex characters of sha256(public key)."
+    },
+    "sig": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/]{86}==$",
+      "description": "Standard base64 (with padding) of the 64-byte signature."
+    }
+  }
+}

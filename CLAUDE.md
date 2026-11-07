@@ -4,6 +4,8 @@
 - README.md documents the format publicly. Keep it in sync with the code in the same change. If
   a sibling `../homing-spec/` folder exists (a private maintainer checkout), its `spec/` chapters
   are the detailed normative text; keep them in agreement too.
+- Keep `schemas/` and `test-vectors/` in sync with the code (tests enforce both; regenerate
+  vectors with `cargo run --example gen-vectors`).
 - Format changes break every device in the field: call them out in CHANGELOG.md and bump the
   version.
 - Security-relevant code (signature checks, archive extraction, path handling) must fail closed and

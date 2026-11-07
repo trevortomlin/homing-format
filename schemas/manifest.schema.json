@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/trevortomlin/homing-format/main/schemas/manifest.schema.json",
+  "title": "homing manifest.json",
+  "description": "Manifest of a .homing package (entry 1 of the archive). Signed by manifest.sig.",
+  "$comment": "Unknown top-level fields are ignored; unknown fields inside runtime, compat, health and files entries are rejected. Rules JSON Schema cannot express: min_version_code <= version_code; file paths are unique and no path is both a file and a directory; at least one file under bundle/flutter_assets/; release and profile builds include bundle/lib/libapp.so.",
+  "type": "object",
+  "required": [
+    "schema",
+    "id",
+    "name",
+    "version",
+    "version_code",
+    "build_mode",
+    "runtime",
+    "compat",
+    "files"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(\\.[a-z0-9_-]+)+$",
+      "maxLength": 128,
+      "description": "Reverse-DNS app id."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "Display version (semver)."
+    },
+    "version_code": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 18446744073709551615,
+      "description": "Monotonic version code."
+    },
+    "min_version_code": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 18446744073709551615,
+      "default": 0,
+      "description": "Raises the device's anti-rollback floor once committed. At most version_code."
+    },
+    "build_mode": {
+      "enum": [
+        "release",
+        "profile",
+        "debug"
+      ]
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "embedder"
+      ],
+      "properties": {
+        "embedder": {
+          "enum": [
+            "flutter-pi",
+            "ivi-homescreen"
+          ]
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "env": {
+          "type": "object",
+          "default": {},
+          "propertyNames": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+            "not": {
+              "pattern": "^HOMING_"
+            }
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "compat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engine_hash",
+        "arch"
+      ],
+      "properties": {
+        "engine_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$",
+          "description": "Flutter engine commit the app was compiled against."
+        },
+        "arch": {
+          "enum": [
+            "aarch64",
+            "armv7",
+            "x86_64",
+            "riscv64"
+          ],
+          "description": "CPU architecture."
+        },
+        "machines": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Yocto MACHINE values; empty or absent means any."
+        },
+        "graphics": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "drm-gles",
+              "drm-vulkan",
+              "wayland-gles",
+              "wayland-vulkan"
+            ]
+          },
+          "minItems": 1,
+          "description": "Accepted graphics backends; absent means any."
+        },
+        "base_image_min": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+          "description": "Minimum base image version."
+        }
+      }
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": [
+            "ready",
+            "alive"
+          ],
+          "default": "ready"
+        },
+        "ready_timeout_s": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600,
+          "default": 30
+        },
+        "trial_s": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600,
+          "default": 60
+        }
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "confirm_updates",
+          "observe_updates"
+        ]
+      },
+      "default": []
+    },
+    "files": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "size"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 255,
+            "pattern": "^(bundle|config|sbom)/([^/\\\\\\u0000-\\u001f\\u007f-\\u009f]+/)*[^/\\\\\\u0000-\\u001f\\u007f-\\u009f]+$",
+            "not": {
+              "pattern": "(^|/)\\.{1,2}(/|$)"
+            }
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          },
+          "exec": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "created": {
+      "type": "string",
+      "description": "Informational creation time."
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/trevortomlin/homing-format/main/schemas/engine.schema.json",
+  "title": "homing engine.json",
+  "description": "Description of a device image (/etc/homing/engine.json), used for compatibility checks.",
+  "type": "object",
+  "required": [
+    "schema",
+    "engine_hash",
+    "arch",
+    "machine",
+    "graphics",
+    "base_image_version"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "engine_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$",
+      "description": "Commit of the Flutter engine installed on the device."
+    },
+    "flutter_version": {
+      "type": "string",
+      "description": "Informational."
+    },
+    "arch": {
+      "enum": [
+        "aarch64",
+        "armv7",
+        "x86_64",
+        "riscv64"
+      ]
+    },
+    "machine": {
+      "type": "string",
+      "description": "Yocto MACHINE."
+    },
+    "graphics": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "drm-gles",
+          "drm-vulkan",
+          "wayland-gles",
+          "wayland-vulkan"
+        ]
+      }
+    },
+    "base_image_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+    }
+  },
+  "additionalProperties": true
+}

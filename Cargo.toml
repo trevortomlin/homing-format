@@ -9,7 +9,7 @@ repository = "https://github.com/trevortomlin/homing-format"
 authors = ["Trevor Tomlin and homing contributors"]
 readme = "README.md"
 homepage = "https://github.com/trevortomlin/homing-format"
-include = ["/src", "/tests/package.rs", "/README.md", "/CHANGELOG.md", "/LICENSE"]
+include = ["/src", "/schemas", "/tests/package.rs", "/README.md", "/CHANGELOG.md", "/LICENSE"]
 keywords = ["ota", "flutter", "embedded", "package", "ed25519"]
 categories = ["embedded", "encoding", "cryptography"]
 
@@ -33,4 +33,5 @@ thiserror = "2"
 zstd = "0.13"
 
 [dev-dependencies]
+jsonschema = { version = "0.59", default-features = false }
 tempfile = "3"
