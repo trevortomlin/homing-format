@@ -1,0 +1,60 @@
+[package]
+name = "homing-format-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+license = "MIT"
+description = "Fuzz targets for homing-format (cargo fuzz)"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+tempfile = "3"
+
+[dependencies.homing-format]
+path = ".."
+
+# Each target: `cargo +nightly fuzz run <name>`.
+[[bin]]
+name = "manifest"
+path = "fuzz_targets/manifest.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "sig_doc"
+path = "fuzz_targets/sig_doc.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "index"
+path = "fuzz_targets/index.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "path"
+path = "fuzz_targets/path.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "package"
+path = "fuzz_targets/package.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "extract"
+path = "fuzz_targets/extract.rs"
+test = false
+doc = false
+bench = false

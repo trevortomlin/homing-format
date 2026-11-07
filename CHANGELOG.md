@@ -32,6 +32,9 @@ minor versions may contain breaking changes.
 - `SecretKey::to_file_string`.
 - JSON Schemas (draft 2020-12) in `schemas/` for `manifest.json`, `*.sig`, `engine.json` and
   `index.json`, tested to agree with the parsers.
+- Fuzz targets (`fuzz/`) for manifest, signature, index and path parsing, package
+  verification, and extraction (which must never write outside the staging directory). CI
+  runs them on every push to `main` and longer each week.
 
 ### Changed
 

@@ -32,6 +32,18 @@ CI runs all of these, plus a license and advisory check with
 (`examples/gen-vectors/`), run `cargo run --example gen-vectors` and commit the result. Never
 edit the files by hand. `cargo test` fails if they are out of date.
 
+## Fuzzing
+
+Changes to parsing, verification or extraction should be fuzzed (needs nightly and
+`cargo install cargo-fuzz`):
+
+```sh
+scripts/fuzz-seed.sh
+cargo +nightly fuzz run package -- -max_total_time=300
+```
+
+See [fuzz/README.md](fuzz/README.md). Turn every crash into a regular test.
+
 ## Guidelines
 
 - **Tests:** every change needs them. Security-relevant code (signature checks, archive

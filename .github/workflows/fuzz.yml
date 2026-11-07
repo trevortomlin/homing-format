@@ -1,0 +1,40 @@
+name: Fuzz
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 3 * * 1" # weekly, longer runs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    name: fuzz (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [manifest, sig_doc, index, path, package, extract]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: fuzz
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-fuzz
+      - run: scripts/fuzz-seed.sh
+      - name: Run ${{ matrix.target }}
+        run: >
+          cargo fuzz run ${{ matrix.target }} --
+          -max_total_time=${{ github.event_name == 'schedule' && 1800 || 120 }}
+      - name: Upload crash reproducers
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-artifacts-${{ matrix.target }}
+          path: fuzz/artifacts/

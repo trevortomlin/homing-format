@@ -29,7 +29,7 @@ homing is an independent project, not affiliated with Google or the Flutter proj
 - **Signed update index** for HTTP sources, with selection of the newest build that fits a
   device. Safe to serve over plain `http://`.
 - **One error code per failure class** (`E_SIG`, `E_HASH`, ...), shared by every homing tool.
-- No `unsafe` code. Only permissively licensed dependencies.
+- No `unsafe` code. Only permissively licensed dependencies. Continuously fuzzed.
 
 ## Installation
 
@@ -228,7 +228,7 @@ from the generator's output.
 - [ ] Multi-app bundles (`.homingb`) and install reports
 - [x] Language-neutral test vectors (every verifier error code)
 - [x] JSON Schemas, checked against the parser in CI
-- [ ] Fuzzing of the archive and manifest parsers
+- [x] Fuzzing of the archive, manifest, signature, index and path code ([`fuzz/`](fuzz/))
 - [ ] Publish to crates.io
 
 ## Minimum supported Rust version
