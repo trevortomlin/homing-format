@@ -44,11 +44,9 @@ First release.
 
 - Dependencies: ed25519-dalek 3, sha2 0.11, base64 0.23, getrandom 0.4, zstd 0.14. Signatures
   and hashes are byte-identical to before (the test vectors are unchanged).
-
 - Public data types and enums that may grow are `#[non_exhaustive]`, so new fields and
   variants can be added in minor releases. Build them with the constructors; fields remain
   public for reading and writing.
-
 - Version codes and sizes are limited to 2^53 − 1 (`MAX_JSON_INT`), the largest integer
   every JSON implementation represents exactly.
 
