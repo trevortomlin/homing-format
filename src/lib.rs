@@ -10,6 +10,7 @@
 
 pub mod device;
 pub mod error;
+pub mod index;
 pub mod keys;
 pub mod manifest;
 pub mod package;
@@ -20,6 +21,7 @@ pub mod writer;
 
 pub use device::DeviceInfo;
 pub use error::{Error, ErrorCode, Result};
+pub use index::{Index, IndexApp, IndexBuild, Selection, VerifiedIndex, verify_index};
 pub use keys::{KeyId, PublicKey, SecretKey};
 pub use manifest::Manifest;
 pub use package::{

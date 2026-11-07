@@ -26,6 +26,8 @@ homing is an independent project, not affiliated with Google or the Flutter proj
   reproducible.
 - **Device compatibility and anti-rollback checks** against the device's engine, architecture,
   machine, graphics backend and minimum version.
+- **Signed update index** for HTTP sources, with selection of the newest build that fits a
+  device. Safe to serve over plain `http://`.
 - **One error code per failure class** (`E_SIG`, `E_HASH`, ...), shared by every homing tool.
 - No `unsafe` code. Only permissively licensed dependencies.
 
@@ -159,6 +161,34 @@ sbom/...                    optional (SPDX JSON recommended)
 - A trust store is a directory of `prod-*.pub` and `dev-*.pub` files. Any other `*.pub` name,
   or a duplicate key id, makes loading fail. Dev keys count only in dev mode.
 
+### Update index (`index.json`)
+
+An HTTP update source publishes `index.json` and a detached `index.json.sig` beside it:
+
+```json
+{
+  "schema": 1,
+  "generated": "2026-11-04T12:00:00Z",
+  "apps": [
+    { "id": "com.example.hello", "version": "1.2.0", "version_code": 10200,
+      "builds": [
+        { "engine_hash": "<40 hex>", "arch": "aarch64", "machines": ["raspberrypi3-64"],
+          "url": "hello-1.2.0-aarch64.homing", "sha256": "<64 hex>", "size": 123456 } ] }
+  ]
+}
+```
+
+- `verify_index` checks the signature (domain `index`) over the exact bytes before parsing.
+- An app may be listed once per version. Each build carries the same compatibility fields as a
+  manifest (`engine_hash`, `arch`, `machines`, optional `graphics` and `base_image_min`).
+- `url` is relative to the index URL, or an absolute `http://` or `https://` URL. Other schemes
+  and scheme-relative URLs are rejected.
+- `Index::select` returns the highest `version_code` above the installed version and the
+  anti-rollback floor that has a compatible build, or reports that newer versions exist but
+  none fits the device.
+- The index is only a catalog: unknown fields in it are ignored, and every package it points to
+  is still fully verified before installation.
+
 ### Verification order
 
 1. Read `manifest.json` and `manifest.sig` (`E_SCHEMA`).
@@ -198,7 +228,8 @@ sbom/...                    optional (SPDX JSON recommended)
 - [x] Keys, signatures, trust store, manifest, path rules
 - [x] Streaming verify-and-extract with hostile-archive tests; deterministic writer
 - [x] Device compatibility checks and anti-rollback floors
-- [ ] Multi-app bundles (`.homingb`), signed update index, install reports
+- [x] Signed update index with device-aware build selection
+- [ ] Multi-app bundles (`.homingb`) and install reports
 - [ ] JSON Schemas and language-neutral test vectors (one per error code)
 - [ ] Fuzzing of the archive and manifest parsers
 - [ ] Publish to crates.io

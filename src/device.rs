@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::error::{Error, ErrorCode, Result};
-use crate::manifest::{Arch, Graphics, Manifest, is_lower_hex};
+use crate::manifest::{Arch, Compat, Graphics, Manifest, is_lower_hex};
 
 /// Parsed `/etc/homing/engine.json`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -55,7 +55,13 @@ impl DeviceInfo {
 
     /// Check a manifest's `compat` section against this device.
     pub fn check(&self, m: &Manifest) -> Result<()> {
-        let c = &m.compat;
+        self.check_compat(&m.compat)
+    }
+
+    /// Check compatibility requirements against this device: engine (`E_ENGINE`), architecture
+    /// (`E_ARCH`), machine (`E_MACHINE`), graphics (`E_GRAPHICS`) and base image
+    /// (`E_BASE_IMAGE`), in that order.
+    pub fn check_compat(&self, c: &Compat) -> Result<()> {
         if c.engine_hash != self.engine_hash {
             return Err(Error::new(
                 ErrorCode::Engine,

@@ -20,3 +20,6 @@ minor versions may contain breaking changes.
 - Deterministic `PackageWriter`.
 - Device compatibility checks (`engine.json`) and anti-rollback floors.
 - Shared error codes (`E_SCHEMA`, `E_SIG`, `E_HASH`, ...).
+- Signed update index (`index.json` + `index.json.sig`): `Index`, `verify_index` and
+  `Index::select`, which picks the newest build compatible with a device.
+- `DeviceInfo::check_compat` for checking compatibility fields outside a manifest.
