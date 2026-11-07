@@ -63,6 +63,10 @@ See [fuzz/README.md](fuzz/README.md). Turn every crash into a regular test.
   [Developer Certificate of Origin](https://developercertificate.org/).
 - Keep pull requests focused, one logical change each. CI must pass before merge.
 
+## Releases
+
+See [RELEASING.md](RELEASING.md).
+
 ## License
 
 By contributing, you agree that your contributions are licensed under the MIT license of this

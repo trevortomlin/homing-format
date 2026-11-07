@@ -53,3 +53,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: EmbarkStudios/cargo-deny-action@v2
+
+  semver:
+    name: semver (vs. last release)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags
+      - id: tag
+        run: echo "last=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)" >> "$GITHUB_OUTPUT"
+      - if: steps.tag.outputs.last == ''
+        run: echo "No release tag yet; nothing to compare against."
+      - if: steps.tag.outputs.last != ''
+        uses: dtolnay/rust-toolchain@stable
+      - if: steps.tag.outputs.last != ''
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-semver-checks
+      - if: steps.tag.outputs.last != ''
+        run: cargo semver-checks --baseline-rev ${{ steps.tag.outputs.last }}
