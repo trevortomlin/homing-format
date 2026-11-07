@@ -39,13 +39,13 @@
     "version_code": {
       "type": "integer",
       "minimum": 0,
-      "maximum": 18446744073709551615,
+      "maximum": 9007199254740991,
       "description": "Monotonic version code."
     },
     "min_version_code": {
       "type": "integer",
       "minimum": 0,
-      "maximum": 18446744073709551615,
+      "maximum": 9007199254740991,
       "default": 0,
       "description": "Raises the device's anti-rollback floor once committed. At most version_code."
     },
@@ -203,7 +203,7 @@
           "size": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 18446744073709551615
+            "maximum": 9007199254740991
           },
           "exec": {
             "type": "boolean",

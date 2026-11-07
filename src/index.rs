@@ -34,7 +34,7 @@ use serde::{Deserialize, Serialize};
 use crate::device::DeviceInfo;
 use crate::error::{Error, Result};
 use crate::keys::{KeyId, SecretKey};
-use crate::manifest::{Arch, Compat, Graphics, is_lower_hex, validate_app_id};
+use crate::manifest::{Arch, Compat, Graphics, MAX_JSON_INT, is_lower_hex, validate_app_id};
 use crate::sig::{self, DocType};
 use crate::trust::TrustStore;
 
@@ -209,6 +209,11 @@ impl Index {
             validate_app_id(&app.id)?;
             semver::Version::parse(&app.version)
                 .map_err(|_| Error::schema(format!("{ctx}: version is not semver")))?;
+            if app.version_code > MAX_JSON_INT {
+                return Err(Error::schema(format!(
+                    "{ctx}: version_code is larger than 2^53 - 1"
+                )));
+            }
             if !seen.insert((app.id.as_str(), app.version_code)) {
                 return Err(Error::schema(format!("{ctx}: listed twice")));
             }
@@ -281,8 +286,8 @@ fn validate_build(b: &IndexBuild) -> Result<()> {
     if !is_lower_hex(&b.sha256, 64) {
         return Err(Error::schema("sha256 must be 64 lowercase hex"));
     }
-    if b.size == 0 {
-        return Err(Error::schema("size must be positive"));
+    if b.size == 0 || b.size > MAX_JSON_INT {
+        return Err(Error::schema("size must be 1..=2^53 - 1"));
     }
     if let Some(min) = &b.base_image_min {
         semver::Version::parse(min).map_err(|_| Error::schema("base_image_min is not semver"))?;

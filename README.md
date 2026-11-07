@@ -121,6 +121,8 @@ sbom/...                    optional (SPDX JSON recommended)
 - `manifest.json` lists every payload file with its SHA-256 and size, along with the app id,
   version, monotonic `version_code`, build mode, embedder, compatibility requirements and
   health-check policy. Unknown fields inside security-relevant sections are rejected.
+- Version codes and sizes are at most 2^53 − 1, so every JSON implementation (including
+  JavaScript and Dart on the web) reads them exactly.
 
 ### Keys and signatures
 

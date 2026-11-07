@@ -11,6 +11,10 @@ use crate::path;
 pub const MAX_MANIFEST: usize = 1024 * 1024;
 /// Maximum number of files a package may list.
 pub const MAX_FILES: usize = 100_000;
+/// Largest integer allowed for version codes and sizes: 2^53 - 1, the largest integer every JSON
+/// implementation represents exactly (I-JSON, RFC 7493). Larger values could compare
+/// differently in JavaScript or Dart-on-web, which matters for anti-rollback.
+pub const MAX_JSON_INT: u64 = (1 << 53) - 1;
 
 /// Build mode of the AOT payload.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -361,6 +365,9 @@ impl Manifest {
         }
         semver::Version::parse(&self.version)
             .map_err(|_| Error::schema(format!("version {:?} is not semver", self.version)))?;
+        if self.version_code > MAX_JSON_INT {
+            return Err(Error::schema("version_code is larger than 2^53 - 1"));
+        }
         if self.min_version_code > self.version_code {
             return Err(Error::schema(
                 "min_version_code is greater than version_code",
@@ -401,6 +408,12 @@ impl Manifest {
             }
             if !is_lower_hex(&f.sha256, 64) {
                 return Err(Error::schema(format!("files: bad sha256 for {}", f.path)));
+            }
+            if f.size > MAX_JSON_INT {
+                return Err(Error::schema(format!(
+                    "files: size of {} is too large",
+                    f.path
+                )));
             }
         }
         // A file and a directory may not share a name (e.g. "bundle/a" and "bundle/a/b").

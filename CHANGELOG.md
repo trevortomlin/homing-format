@@ -42,6 +42,9 @@ minor versions may contain breaking changes.
   variants can be added in minor releases. Build them with the constructors; fields remain
   public for reading and writing.
 
+- Version codes and sizes are limited to 2^53 − 1 (`MAX_JSON_INT`), the largest integer
+  every JSON implementation represents exactly.
+
 ### Fixed
 
 - A file outside `bundle/`, `config/` and `sbom/` is now reported as `E_PATH` (was
