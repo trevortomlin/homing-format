@@ -255,7 +255,7 @@ impl Index {
                 a.id == app_id && a.version_code > installed_version_code && a.version_code >= floor
             })
             .collect();
-        newer.sort_by(|a, b| b.version_code.cmp(&a.version_code));
+        newer.sort_by_key(|a| std::cmp::Reverse(a.version_code));
         let Some(newest) = newer.first() else {
             return Selection::UpToDate;
         };
