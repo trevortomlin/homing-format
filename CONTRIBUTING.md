@@ -26,6 +26,12 @@ RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 CI runs all of these, plus a license and advisory check with
 [cargo-deny](https://github.com/EmbarkStudios/cargo-deny) (`cargo deny check`).
 
+## Test vectors
+
+`test-vectors/` is generated. After changing the format or the generator
+(`examples/gen-vectors/`), run `cargo run --example gen-vectors` and commit the result. Never
+edit the files by hand. `cargo test` fails if they are out of date.
+
 ## Guidelines
 
 - **Tests:** every change needs them. Security-relevant code (signature checks, archive

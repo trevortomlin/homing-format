@@ -1,0 +1,11 @@
+{
+  "arch": "aarch64",
+  "base_image_version": "1.0.0",
+  "engine_hash": "0123456789abcdef0123456789abcdef01234567",
+  "flutter_version": "3.44.9",
+  "graphics": [
+    "drm-gles"
+  ],
+  "machine": "raspberrypi3-64",
+  "schema": 1
+}

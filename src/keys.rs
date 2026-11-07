@@ -211,10 +211,15 @@ impl SecretKey {
         let mut f = opts
             .open(path)
             .map_err(|e| Error::io(format!("cannot create {}", path.display()), e))?;
-        let line = format!("{SECRET_TAG} {}\n", B64.encode(self.key.as_bytes()));
-        f.write_all(line.as_bytes())
+        f.write_all(self.to_file_string().as_bytes())
             .and_then(|()| f.sync_all())
             .map_err(|e| Error::io(format!("cannot write {}", path.display()), e))
+    }
+
+    /// The key file line (`homing-ed25519-secret <base64 seed>` and a newline). Treat the result
+    /// as secret; prefer [`SecretKey::write_new`], which also sets file permissions.
+    pub fn to_file_string(&self) -> String {
+        format!("{SECRET_TAG} {}\n", B64.encode(self.key.as_bytes()))
     }
 
     /// The matching public key with a comment.

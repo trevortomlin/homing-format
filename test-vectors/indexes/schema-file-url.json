@@ -1,0 +1,34 @@
+{
+  "apps": [
+    {
+      "builds": [
+        {
+          "arch": "aarch64",
+          "engine_hash": "fedcba9876543210fedcba9876543210fedcba98",
+          "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "size": 4096,
+          "url": "file:///etc/shadow"
+        }
+      ],
+      "id": "com.example.hello",
+      "version": "2.0.0",
+      "version_code": 20000
+    },
+    {
+      "builds": [
+        {
+          "arch": "aarch64",
+          "engine_hash": "0123456789abcdef0123456789abcdef01234567",
+          "sha256": "7dd413b3ec6b3103a579abb3a77e26c16166056be143ef948f6d54544e99b5da",
+          "size": 867,
+          "url": "../packages/pass-basic.homing"
+        }
+      ],
+      "id": "com.example.hello",
+      "version": "1.0.0",
+      "version_code": 10000
+    }
+  ],
+  "generated": "2026-01-01T00:00:00Z",
+  "schema": 1
+}
