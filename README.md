@@ -10,8 +10,9 @@ parses, verifies, writes and safely extracts `.homing` packages.
 
 homing is an independent project, not affiliated with Google or the Flutter project.
 
-> **Status: pre-alpha.** The format may still change in incompatible ways before 0.1.0. It has
-> not been audited. Do not rely on it to protect devices that matter yet.
+> **Status: early release (0.1).** The format may still change in incompatible ways in 0.x
+> minor releases, always noted in the [changelog](CHANGELOG.md). It has not been audited. Do
+> not rely on it to protect devices that matter yet.
 
 ## Features
 
@@ -33,11 +34,11 @@ homing is an independent project, not affiliated with Google or the Flutter proj
 
 ## Installation
 
-The crate is not on crates.io yet. Use it from Git:
+The crate is not on crates.io yet. Use a release tag from Git:
 
 ```toml
 [dependencies]
-homing-format = { git = "https://github.com/trevortomlin/homing-format" }
+homing-format = { git = "https://github.com/trevortomlin/homing-format", tag = "v0.1.0" }
 ```
 
 ## Usage

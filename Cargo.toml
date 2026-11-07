@@ -1,6 +1,6 @@
 [package]
 name = "homing-format"
-version = "0.1.0-dev"
+version = "0.1.0"
 description = "Reference parser, verifier and writer for homing app packages"
 edition = "2024"
 rust-version = "1.85"

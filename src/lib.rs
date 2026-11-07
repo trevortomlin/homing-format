@@ -53,7 +53,7 @@
 //! The [README](https://github.com/trevortomlin/homing-format#readme) describes the format,
 //! the security model and the language-neutral test vectors.
 //!
-//! **Pre-alpha:** the format may still change in incompatible ways before 0.1.0.
+//! **Early release:** the format may still change in incompatible ways in 0.x minor releases.
 
 pub mod device;
 pub mod error;

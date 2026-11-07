@@ -26,5 +26,4 @@ See "Security model and limits" in the README.
 
 ## Supported versions
 
-homing-format is pre-alpha and has not been audited. Until 1.0, only the latest commit on
-`main` (and later the latest release) receives fixes.
+homing-format has not been audited. Until 1.0, only the latest release receives fixes.

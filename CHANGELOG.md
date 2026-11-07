@@ -8,6 +8,10 @@ minor versions may contain breaking changes.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-06
+
+First release.
+
 ### Added
 
 - Ed25519 key files, key ids and domain-separated detached signatures with strict
@@ -38,6 +42,9 @@ minor versions may contain breaking changes.
 
 ### Changed
 
+- Dependencies: ed25519-dalek 3, sha2 0.11, base64 0.23, getrandom 0.4, zstd 0.14. Signatures
+  and hashes are byte-identical to before (the test vectors are unchanged).
+
 - Public data types and enums that may grow are `#[non_exhaustive]`, so new fields and
   variants can be added in minor releases. Build them with the constructors; fields remain
   public for reading and writing.
@@ -49,3 +56,6 @@ minor versions may contain breaking changes.
 
 - A file outside `bundle/`, `config/` and `sbom/` is now reported as `E_PATH` (was
   `E_EXTRA_FILE`), consistent with directories.
+
+[Unreleased]: https://github.com/trevortomlin/homing-format/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/trevortomlin/homing-format/releases/tag/v0.1.0
