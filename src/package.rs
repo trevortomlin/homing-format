@@ -119,9 +119,19 @@ pub fn verify<R: Read>(r: R, opts: VerifyOptions<'_>) -> Result<VerifiedPackage>
 
 /// Verify a package and extract its payload into `dest`, which must not exist yet.
 ///
-/// On any failure `dest` is removed. Files are created with mode 0644, or 0755 when the
-/// manifest marks them `exec`; archive modes, owners and times are ignored. Every file is
+/// The signature is verified before any payload byte is read, and each file is hashed while it
+/// is written. On any failure `dest` is removed. Files are created with mode 0644, or 0755 when
+/// the manifest marks them `exec`; archive modes, owners and times are ignored. Every file is
 /// fsynced; the caller is responsible for fsyncing directories and renaming `dest` into place.
+///
+/// # Security
+///
+/// Entry paths are validated (no absolute paths, `..`, links or special files) and files are
+/// created with `create_new`, so an archive cannot overwrite anything or escape `dest`.
+/// This relies on one assumption: **no other process can modify `dest` or its parent while
+/// extraction runs.** If an attacker could, for example, replace a directory inside `dest`
+/// with a symlink between the check and the write, files could land elsewhere. Put `dest` in
+/// a directory that only the installing process can write to, as homing-agent does.
 pub fn verify_and_extract<R: Read>(
     r: R,
     opts: VerifyOptions<'_>,

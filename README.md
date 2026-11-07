@@ -213,6 +213,8 @@ from the generator's output.
 ### Security model and limits
 
 - Integrity comes only from signatures and hashes, never from TLS.
+- Extraction assumes no other process can modify the staging directory or its parent while it
+  runs. Put it in a directory only the installer can write to.
 - Signatures carry no timestamps, because devices may have no reliable clock. A signed update
   index can therefore be replayed (a freeze attack). Anti-rollback floors prevent downgrades,
   but not the withholding of newer versions.
