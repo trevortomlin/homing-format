@@ -33,6 +33,7 @@ pub fn decompressing_reader<'a, R: Read + 'a>(r: R) -> Result<Box<dyn Read + 'a>
 
 /// Result of a successful verification.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct VerifiedPackage {
     /// The validated manifest.
     pub manifest: Manifest,
@@ -46,6 +47,7 @@ pub struct VerifiedPackage {
 
 /// Inputs for a full verification.
 #[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
 pub struct VerifyOptions<'a> {
     /// Trusted keys (and dev mode).
     pub trust: &'a TrustStore,
@@ -53,6 +55,29 @@ pub struct VerifyOptions<'a> {
     pub device: Option<&'a DeviceInfo>,
     /// Anti-rollback floor for this app id.
     pub floor: u64,
+}
+
+impl<'a> VerifyOptions<'a> {
+    /// Options for verifying against `trust`, with no device checks and a floor of 0.
+    pub fn new(trust: &'a TrustStore) -> Self {
+        Self {
+            trust,
+            device: None,
+            floor: 0,
+        }
+    }
+
+    /// Also check compatibility with `device`.
+    pub fn device(mut self, device: &'a DeviceInfo) -> Self {
+        self.device = Some(device);
+        self
+    }
+
+    /// Reject packages whose `version_code` is below `floor`.
+    pub fn floor(mut self, floor: u64) -> Self {
+        self.floor = floor;
+        self
+    }
 }
 
 /// Read only `manifest.json` and `manifest.sig`, with no trust checks (for `homing inspect`).

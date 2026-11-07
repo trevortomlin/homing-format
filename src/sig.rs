@@ -15,6 +15,7 @@ pub const MAX_SIG_DOC: usize = 4096;
 /// Which kind of document a signature covers. Part of the signed message, so a signature for one
 /// kind can never verify as another.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum DocType {
     /// `manifest.json` inside a package.
     Manifest,
@@ -44,6 +45,7 @@ fn message(doc_type: DocType, doc: &[u8]) -> Vec<u8> {
 
 /// A parsed `*.sig` document.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct SigDoc {
     /// Id of the signing key.
     pub key_id: KeyId,

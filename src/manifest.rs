@@ -15,6 +15,7 @@ pub const MAX_FILES: usize = 100_000;
 /// Build mode of the AOT payload.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
+#[non_exhaustive]
 pub enum BuildMode {
     /// Release (AOT `libapp.so`).
     Release,
@@ -26,6 +27,7 @@ pub enum BuildMode {
 
 /// Embedder that runs the app.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum Embedder {
     /// flutter-pi.
     #[serde(rename = "flutter-pi")]
@@ -38,6 +40,7 @@ pub enum Embedder {
 /// CPU architecture.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
+#[non_exhaustive]
 pub enum Arch {
     /// 64-bit Arm.
     Aarch64,
@@ -64,6 +67,7 @@ impl Arch {
 
 /// Graphics backend.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub enum Graphics {
     /// DRM/KMS with OpenGL ES.
     #[serde(rename = "drm-gles")]
@@ -82,6 +86,7 @@ pub enum Graphics {
 /// Health check mode.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
+#[non_exhaustive]
 pub enum HealthMode {
     /// The app must call `app.ready` within `ready_timeout_s`.
     Ready,
@@ -92,6 +97,7 @@ pub enum HealthMode {
 /// App permissions.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum Permission {
     /// May confirm pending installs.
     ConfirmUpdates,
@@ -102,6 +108,7 @@ pub enum Permission {
 /// `runtime` section.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+#[non_exhaustive]
 pub struct Runtime {
     /// Embedder.
     pub embedder: Embedder,
@@ -116,6 +123,7 @@ pub struct Runtime {
 /// `compat` section.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+#[non_exhaustive]
 pub struct Compat {
     /// 40-hex Flutter engine commit.
     pub engine_hash: String,
@@ -135,6 +143,7 @@ pub struct Compat {
 /// `health` section.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+#[non_exhaustive]
 pub struct Health {
     /// Mode.
     #[serde(default = "default_mode")]
@@ -157,6 +166,43 @@ fn default_trial() -> u32 {
     60
 }
 
+impl FileEntry {
+    /// A payload file entry. Normally created by [`PackageWriter`](crate::PackageWriter).
+    pub fn new(path: impl Into<String>, sha256: impl Into<String>, size: u64, exec: bool) -> Self {
+        Self {
+            path: path.into(),
+            sha256: sha256.into(),
+            size,
+            exec,
+        }
+    }
+}
+
+impl Runtime {
+    /// A runtime section for `embedder` with no extra arguments or environment.
+    pub fn new(embedder: Embedder) -> Self {
+        Self {
+            embedder,
+            args: vec![],
+            env: BTreeMap::new(),
+        }
+    }
+}
+
+impl Compat {
+    /// Requirements for one engine commit and architecture; any machine, graphics backend and
+    /// base image.
+    pub fn new(engine_hash: impl Into<String>, arch: Arch) -> Self {
+        Self {
+            engine_hash: engine_hash.into(),
+            arch,
+            machines: vec![],
+            graphics: None,
+            base_image_min: None,
+        }
+    }
+}
+
 impl Default for Health {
     fn default() -> Self {
         Self {
@@ -170,6 +216,7 @@ impl Default for Health {
 /// One payload file entry.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+#[non_exhaustive]
 pub struct FileEntry {
     /// Package path.
     pub path: String,
@@ -187,6 +234,7 @@ pub struct FileEntry {
 /// Unknown top-level fields are ignored; unknown fields inside `runtime`, `compat`, `health`,
 /// `permissions` and `files` entries are rejected.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Manifest {
     /// Always 1.
     pub schema: u32,
@@ -256,6 +304,33 @@ fn is_env_name(s: &str) -> bool {
 }
 
 impl Manifest {
+    /// A manifest with the given identity and compatibility, and defaults for everything else:
+    /// release build, flutter-pi embedder, default health check, no permissions. `files` is
+    /// filled in by [`PackageWriter::write`](crate::PackageWriter::write).
+    pub fn new(
+        id: impl Into<String>,
+        name: impl Into<String>,
+        version: impl Into<String>,
+        version_code: u64,
+        compat: Compat,
+    ) -> Self {
+        Self {
+            schema: 1,
+            id: id.into(),
+            name: name.into(),
+            version: version.into(),
+            version_code,
+            min_version_code: 0,
+            build_mode: BuildMode::Release,
+            runtime: Runtime::new(Embedder::FlutterPi),
+            compat,
+            health: Health::default(),
+            permissions: vec![],
+            files: vec![],
+            created: None,
+        }
+    }
+
     /// Parse and validate manifest bytes.
     pub fn parse(bytes: &[u8]) -> Result<Self> {
         if bytes.len() > MAX_MANIFEST {

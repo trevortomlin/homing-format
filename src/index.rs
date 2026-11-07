@@ -45,6 +45,7 @@ pub const MAX_URL: usize = 2048;
 
 /// A parsed and validated `index.json`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Index {
     /// Always 1.
     pub schema: u32,
@@ -57,6 +58,7 @@ pub struct Index {
 
 /// One version of one app.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct IndexApp {
     /// Reverse-DNS app id.
     pub id: String,
@@ -70,6 +72,7 @@ pub struct IndexApp {
 
 /// One package of an app version, built for one device configuration.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct IndexBuild {
     /// 40-hex Flutter engine commit the package was built against.
     pub engine_hash: String,
@@ -92,7 +95,45 @@ pub struct IndexBuild {
     pub size: u64,
 }
 
+impl IndexApp {
+    /// One version of an app, without builds yet.
+    pub fn new(id: impl Into<String>, version: impl Into<String>, version_code: u64) -> Self {
+        Self {
+            id: id.into(),
+            version: version.into(),
+            version_code,
+            builds: vec![],
+        }
+    }
+}
+
+impl Default for Index {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IndexBuild {
+    /// A build entry for any machine, graphics backend and base image.
+    pub fn new(
+        engine_hash: impl Into<String>,
+        arch: Arch,
+        url: impl Into<String>,
+        sha256: impl Into<String>,
+        size: u64,
+    ) -> Self {
+        Self {
+            engine_hash: engine_hash.into(),
+            arch,
+            machines: vec![],
+            graphics: None,
+            base_image_min: None,
+            url: url.into(),
+            sha256: sha256.into(),
+            size,
+        }
+    }
+
     /// The build's compatibility requirements, as in a manifest's `compat` section.
     pub fn compat(&self) -> Compat {
         Compat {
@@ -112,6 +153,7 @@ impl IndexBuild {
 
 /// Result of [`Index::select`] for one app.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Selection<'a> {
     /// No version newer than the installed one is listed.
     UpToDate,
@@ -130,6 +172,15 @@ pub enum Selection<'a> {
 }
 
 impl Index {
+    /// An empty index.
+    pub fn new() -> Self {
+        Self {
+            schema: 1,
+            generated: None,
+            apps: vec![],
+        }
+    }
+
     /// Parse and validate `index.json` **without** checking its signature. Use
     /// [`verify_index`] for anything received over the network.
     pub fn parse(bytes: &[u8]) -> Result<Self> {
@@ -294,6 +345,7 @@ fn validate_url(url: &str) -> Result<()> {
 
 /// A verified index and the key that signed it.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct VerifiedIndex {
     /// The validated index.
     pub index: Index,
@@ -507,6 +559,18 @@ mod tests {
         let mut zero = index(vec![app(2, vec![build(ENGINE, "a")])]);
         zero.apps[0].builds[0].size = 0;
         assert!(zero.validate().is_err());
+    }
+
+    #[test]
+    fn constructors_build_a_valid_index() {
+        let mut app = IndexApp::new("com.example.hello", "1.2.0", 10200);
+        let mut b = IndexBuild::new(ENGINE, Arch::Aarch64, "a.homing", "c".repeat(64), 10);
+        b.machines = vec!["raspberrypi3-64".into()];
+        app.builds.push(b);
+        let mut idx = Index::new();
+        idx.apps.push(app);
+        idx.validate().unwrap();
+        assert_eq!(Index::parse(&idx.to_bytes()).unwrap(), idx);
     }
 
     #[test]

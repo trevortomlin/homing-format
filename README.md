@@ -45,7 +45,7 @@ homing-format = { git = "https://github.com/trevortomlin/homing-format" }
 Write a package on the publisher side and verify it on the device:
 
 ```rust
-use homing_format::manifest::{Arch, BuildMode, Compat, Embedder, Health, Runtime};
+use homing_format::manifest::{Arch, Compat, Graphics};
 use homing_format::{
     DeviceInfo, ErrorCode, KeyRole, Manifest, PackageWriter, SecretKey, TrustStore, VerifyOptions,
 };
@@ -60,42 +60,18 @@ fn main() -> homing_format::Result<()> {
     writer.add_bytes("bundle/lib/libapp.so", vec![0; 1024], false)?;
     writer.add_bytes("config/app.json", br#"{"greeting":"hi"}"#.to_vec(), false)?;
 
-    let manifest = Manifest {
-        schema: 1,
-        id: "com.example.hello".into(),
-        name: "Hello".into(),
-        version: "1.0.0".into(),
-        version_code: 10000,
-        min_version_code: 0,
-        build_mode: BuildMode::Release,
-        runtime: Runtime { embedder: Embedder::FlutterPi, args: vec![], env: Default::default() },
-        compat: Compat {
-            engine_hash: ENGINE.into(),
-            arch: Arch::Aarch64,
-            machines: vec!["raspberrypi3-64".into()],
-            graphics: None,
-            base_image_min: None,
-        },
-        health: Health::default(),
-        permissions: vec![],
-        files: vec![], // filled in by the writer
-        created: None,
-    };
+    let mut compat = Compat::new(ENGINE, Arch::Aarch64);
+    compat.machines = vec!["raspberrypi3-64".into()];
+    let manifest = Manifest::new("com.example.hello", "Hello", "1.0.0", 10000, compat);
     let mut package = Vec::new();
-    writer.write(manifest, &key, &mut package)?;
+    writer.write(manifest, &key, &mut package)?; // hashes the files and signs
 
-    // Device: trusted keys, the device's engine info and its anti-rollback floor.
+    // Device: trusted keys, the device's description and its anti-rollback floor.
     let mut trust = TrustStore::new(false);
     trust.add(key.public_key("release"), KeyRole::Prod)?;
-    let device = DeviceInfo::parse(
-        format!(
-            r#"{{"schema":1,"engine_hash":"{ENGINE}","arch":"aarch64",
-                 "machine":"raspberrypi3-64","graphics":["drm-gles"],
-                 "base_image_version":"1.0.0"}}"#
-        )
-        .as_bytes(),
-    )?;
-    let opts = VerifyOptions { trust: &trust, device: Some(&device), floor: 0 };
+    let device =
+        DeviceInfo::new(ENGINE, Arch::Aarch64, "raspberrypi3-64", vec![Graphics::DrmGles], "1.0.0");
+    let opts = VerifyOptions::new(&trust).device(&device).floor(0);
 
     let verified = homing_format::verify(&package[..], opts)?;
     assert_eq!(verified.manifest.id, "com.example.hello");

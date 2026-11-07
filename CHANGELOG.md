@@ -23,3 +23,12 @@ minor versions may contain breaking changes.
 - Signed update index (`index.json` + `index.json.sig`): `Index`, `verify_index` and
   `Index::select`, which picks the newest build compatible with a device.
 - `DeviceInfo::check_compat` for checking compatibility fields outside a manifest.
+- Constructors for the data types (`Manifest::new`, `Compat::new`, `Runtime::new`,
+  `FileEntry::new`, `DeviceInfo::new`, `Index::new`, `IndexApp::new`, `IndexBuild::new`) and
+  a builder for `VerifyOptions` (`VerifyOptions::new(&trust).device(&d).floor(n)`).
+
+### Changed
+
+- Public data types and enums that may grow are `#[non_exhaustive]`, so new fields and
+  variants can be added in minor releases. Build them with the constructors; fields remain
+  public for reading and writing.

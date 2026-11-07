@@ -7,6 +7,7 @@ use crate::manifest::{Arch, Compat, Graphics, Manifest, is_lower_hex};
 
 /// Parsed `/etc/homing/engine.json`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct DeviceInfo {
     /// Always 1.
     pub schema: u32,
@@ -26,6 +27,25 @@ pub struct DeviceInfo {
 }
 
 impl DeviceInfo {
+    /// Describe a device. Usually read from `engine.json` with [`DeviceInfo::read`] instead.
+    pub fn new(
+        engine_hash: impl Into<String>,
+        arch: Arch,
+        machine: impl Into<String>,
+        graphics: Vec<Graphics>,
+        base_image_version: impl Into<String>,
+    ) -> Self {
+        Self {
+            schema: 1,
+            engine_hash: engine_hash.into(),
+            flutter_version: String::new(),
+            arch,
+            machine: machine.into(),
+            graphics,
+            base_image_version: base_image_version.into(),
+        }
+    }
+
     /// Parse and validate `engine.json`.
     pub fn parse(bytes: &[u8]) -> Result<Self> {
         let d: DeviceInfo = serde_json::from_slice(bytes)

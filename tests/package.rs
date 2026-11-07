@@ -3,7 +3,7 @@
 
 use std::io::Write as _;
 
-use homing_format::manifest::{BuildMode, Compat, Embedder, Health, Runtime};
+use homing_format::manifest::Compat;
 use homing_format::*;
 
 const ENGINE: &str = "0123456789abcdef0123456789abcdef01234567";
@@ -30,31 +30,9 @@ fn device() -> DeviceInfo {
 }
 
 fn base_manifest(version_code: u64) -> Manifest {
-    Manifest {
-        schema: 1,
-        id: "com.example.hello".into(),
-        name: "Hello".into(),
-        version: "1.0.0".into(),
-        version_code,
-        min_version_code: 0,
-        build_mode: BuildMode::Release,
-        runtime: Runtime {
-            embedder: Embedder::FlutterPi,
-            args: vec![],
-            env: Default::default(),
-        },
-        compat: Compat {
-            engine_hash: ENGINE.into(),
-            arch: manifest::Arch::Aarch64,
-            machines: vec!["raspberrypi3-64".into()],
-            graphics: None,
-            base_image_min: None,
-        },
-        health: Health::default(),
-        permissions: vec![],
-        files: vec![],
-        created: None,
-    }
+    let mut compat = Compat::new(ENGINE, manifest::Arch::Aarch64);
+    compat.machines = vec!["raspberrypi3-64".into()];
+    Manifest::new("com.example.hello", "Hello", "1.0.0", version_code, compat)
 }
 
 fn writer() -> PackageWriter {
@@ -81,11 +59,7 @@ fn build(w: &PackageWriter, vc: u64) -> Vec<u8> {
 }
 
 fn opts<'a>(t: &'a TrustStore, d: &'a DeviceInfo) -> VerifyOptions<'a> {
-    VerifyOptions {
-        trust: t,
-        device: Some(d),
-        floor: 0,
-    }
+    VerifyOptions::new(t).device(d)
 }
 
 #[test]
@@ -176,11 +150,7 @@ fn compat_and_floor_errors() {
         ErrorCode::Engine
     );
     let d = device();
-    let o = VerifyOptions {
-        trust: &t,
-        device: Some(&d),
-        floor: 6,
-    };
+    let o = VerifyOptions::new(&t).device(&d).floor(6);
     assert_eq!(verify(&pkg[..], o).unwrap_err().code(), ErrorCode::Rollback);
 }
 
@@ -243,12 +213,8 @@ fn signed_head(files: &[(&str, &[u8])]) -> (Vec<u8>, Vec<u8>) {
     let mut m = base_manifest(1);
     for (p, data) in files {
         let (sha256, size) = package::sha256_reader(*data).unwrap();
-        m.files.push(manifest::FileEntry {
-            path: (*p).into(),
-            sha256,
-            size,
-            exec: false,
-        });
+        m.files
+            .push(manifest::FileEntry::new(*p, sha256, size, false));
     }
     let mb = m.to_bytes();
     let sb = sig::sign(&key(), DocType::Manifest, &mb).to_bytes();
