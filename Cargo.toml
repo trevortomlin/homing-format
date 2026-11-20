@@ -33,5 +33,5 @@ thiserror = "2"
 zstd = "0.14"
 
 [dev-dependencies]
-jsonschema = { version = "0.60", default-features = false }
+jsonschema = { version = "0.61", default-features = false }
 tempfile = "3"
